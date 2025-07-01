@@ -1,0 +1,8 @@
+# Root-level secrets
+keys/
+*.pem
+*.key
+
+# OS/editor files
+.DS_Store
+.vscode/

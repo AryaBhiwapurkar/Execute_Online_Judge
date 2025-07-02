@@ -11,7 +11,7 @@ const Problems = () => {
   useEffect(() => {
     const fetchProblems = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/problems");
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/problems`);
         const data = await res.json();
         if (res.ok) {
           setProblems(data);

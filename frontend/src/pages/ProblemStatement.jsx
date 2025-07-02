@@ -12,7 +12,7 @@ const ProblemStatement = () => {
   useEffect(() => {
     const fetchProblem = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/problems/${id}`);
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/problems/${id}`);
         const data = await res.json();
         if (res.ok) {
           setProblem(data);

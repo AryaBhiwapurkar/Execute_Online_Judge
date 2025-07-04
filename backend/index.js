@@ -114,6 +114,10 @@ app.get("/seerequest", (req, res) => {
   res.send("Check console");
 });
 
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+});
+
 // 🧩 Mount major routes
 app.use("/api", compilerRoutes); // /api/run
 app.use("/api/submit", submitRoute); // /api/submit ✅

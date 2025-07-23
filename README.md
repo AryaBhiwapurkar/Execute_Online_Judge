@@ -2,7 +2,8 @@
 
 An end-to-end **Online Judge Platform** for solving programming problems, executing multi-language code, and receiving instant test case feedback — with **AI-powered code reviews** built-in.
 
-> 🧠 Built using React, Node.js, MongoDB, Docker, and Google Gemini API.
+> 🧠 Built using React, Node.js, MongoDB, Docker, AWS EC2, and Google Gemini API.  
+> 📽️ [Demo Video](https://www.loom.com/share/7419466d504d467d8eb8e26adc8c500a?sid=2bead891-e1e5-41a9-8096-822d3454e293) | 🌐 [Live Site](https://execute-online-judge.vercel.app)
 
 ---
 
@@ -21,71 +22,74 @@ An end-to-end **Online Judge Platform** for solving programming problems, execut
 
 ## 🛠️ Tech Stack at a Glance
 
-| Layer       | Technologies                             |
-|------------|-------------------------------------------|
-| 🖥 Frontend | React + Vite + Tailwind CSS + Axios       |
-| 🧠 Backend  | Node.js + Express + JWT + Docker          |
-| 💾 Database | MongoDB + Mongoose                        |
-| ⚙️ Execution | Native compilers via `child_process`      |
-| 🤖 AI       | Google Gemini API                         |
-| 🔒 Auth     | JWT, bcryptjs, role-based access control  |
+| Layer       | Technologies                                      |
+|------------|----------------------------------------------------|
+| 🖥 Frontend | React + Vite + Tailwind CSS + Axios                |
+| 🧠 Backend  | Node.js + Express + JWT + Docker                   |
+| 💾 Database | MongoDB + Mongoose                                 |
+| ⚙️ Execution | Docker containers + `child_process` (gcc/python)  |
+| 🤖 AI       | Google Gemini API                                  |
+| 🔒 Auth     | JWT, bcryptjs, role-based access control           |
+| ☁️ Infra    | AWS EC2/ECR, Vercel (frontend), Hostinger (DNS)    |
 
 ---
 
 ## 🚀 Features
 
 - 🔐 **Authentication & Role System**
-  - JWT-secured login/registration
-  - Password hashing, user/admin separation
+  - Secure JWT login/signup
+  - Bcrypt password hashing
+  - Admin/user role separation
 
 - 📚 **Problem Management**
-  - MongoDB-stored problems with test cases
-  - Admin-protected problem creation/edit APIs
+  - Admin-only creation/edit API with MongoDB storage
+  - Test cases stored with problems
 
 - 💻 **In-browser Code Editor**
-  - Language selection (C++, Python)
-  - Starter templates auto-inserted
+  - Supports C++ and Python
+  - Starter template insertion
+  - Custom input/output support
 
 - 🧪 **Run & Submit**
-  - 🔹 Run: Executes code on user input
-  - 🔹 Submit: Runs code on hidden test cases & returns verdicts
+  - 🔹 `Run`: Executes code with user input in real-time
+  - 🔹 `Submit`: Evaluates on hidden test cases & returns verdicts
 
 - 🤖 **AI Code Review**
-  - Gemini API analyzes code for:
-    - Logic & structure
-    - Suggestions for improvement
-    - Rating & readability feedback
+  - Gemini API rates user code:
+    - Logic & structure analysis
+    - Pros, cons, readability
+    - Score out of 10
 
-- ⚙️ **Dockerized Backend**
-  - Containerized execution environment for safe, isolated code execution
+- ⚙️ **Dockerized Execution**
+  - Backend container spawns isolated runtime
+  - Memory cap: 256MB | Timeout: 1s
 
 - 🧑‍💼 **Admin Panel**
-  - Protected routes for managing problems, users
+  - Protected routes to manage users/problems
 
 ---
 
-## 🧱 Project Architecture
+## 🧱 Project Structure
 
-```
 Execute_Online_Judge/
 ├── backend/
-│   ├── compiler/         → Code execution logic (C++, Python)
-│   ├── database/         → MongoDB connection
-│   ├── middleware/       → JWT auth, role checks
-│   ├── Models/           → User & Problem schemas
-│   ├── aiCodeReview.js   → Google Gemini API integration
-│   └── index.js          → Express server entry
+│ ├── compiler/ → Code execution logic (C++, Python)
+│ ├── database/ → MongoDB connection
+│ ├── middleware/ → JWT auth, role checks
+│ ├── Models/ → User & Problem schemas
+│ ├── aiCodeReview.js → Google Gemini API integration
+│ └── index.js → Express server entry
 │
 ├── frontend/
-│   ├── src/
-│   │   ├── components/   → Pages, problem views, editor
-│   │   ├── routes/       → Auth & dashboard routes
-│   │   └── App.jsx       → App entry point
+│ ├── src/
+│ │ ├── components/ → Pages, problem views, editor
+│ │ ├── routes/ → Auth & dashboard routes
+│ │ └── App.jsx → App entry point
 │
-├── Dockerfile            → Backend Docker config
-├── .env.example          → Environment variables template
-└── README.md             → You’re here!
-```
+├── Dockerfile → Backend Docker config
+├── .env.example → Environment variables template
+└── README.md
+
 
 ---
 
@@ -93,50 +97,45 @@ Execute_Online_Judge/
 
 | Step     | Action                                                                 |
 |----------|------------------------------------------------------------------------|
-| 🔐 Login  | JWT-based login; role (user/admin) assigned                           |
-| 📂 Select | Choose a coding problem from the dashboard                            |
-| 💻 Code   | Write code in the browser with selected language                      |
-| ▶️ Run    | Sends code + input to backend; backend executes and returns output    |
-| ✅ Submit | Backend runs code against all hidden test cases; verdicts shown       |
-| 🤖 Review | Gemini AI rates code quality and offers improvement suggestions       |
-| 🛠️ Admin  | Admin-only API endpoints for managing problems                        |
+| 🔐 Login  | JWT login; user/admin role fetched                                     |
+| 📂 Select | Choose a problem from the dashboard                                    |
+| 💻 Code   | Code in-browser (C++ or Python)                                        |
+| ▶️ Run    | Sends code + input to backend → runs inside Docker                    |
+| ✅ Submit | Evaluated on hidden test cases → verdicts shown                        |
+| 🤖 Review | Code sent to Gemini API → feedback and score returned                  |
+| 🛠️ Admin  | Admin-only APIs for adding/editing problems                           |
 
 ---
 
-## 🧪 Code Execution: Under the Hood
+## 🧪 Code Execution Flow
 
-- When a user clicks **Run**, their code is:
-  - Saved as a temporary file
-  - Wrapped in a Docker container with the appropriate compiler/interpreter
-  - Executed securely with timeout & memory constraints
-  - Output or errors returned back to the frontend
-
-- For **Submit**, the same process runs across all hidden test cases with verdicts like `Passed`, `Failed`, `Runtime Error`, etc.
+- Code is saved as a temp file on backend
+- Backend spins up a Docker container with memory and time limits
+- Compiles/executes the code using native compilers
+- Captures output/errors and returns response
 
 ---
 
 ## 🤖 AI-Powered Code Review
 
-- On submission, user code is sent to the **Gemini API**
-- The AI returns:
-  - A score (quality/readability)
-  - Structural issues
-  - Suggestions for cleaner logic or optimizations
+- After a successful submission, user's code is sent to the **Gemini API**
+- AI returns:
+  - Score (0–10) on readability and structure
+  - Suggestions for improvement
+  - Identified logic or performance issues
+- Displayed in a friendly popup on the frontend
 
 ---
 
-## 📷 UI Overview *(Coming Soon)*
+## 📈 Results & Testing
 
-You can add screenshots here showing:
-
-- 📘 Problem page
-- 💻 Code editor with language dropdown
-- 📊 Verdicts for each test case
-- 🤖 Gemini feedback panel
+- 🔄 Live-tested with 35+ users
+- ✅ Verified execution safety and feedback accuracy
+- 🧩 Gathered feedback for future enhancements
 
 ---
 
-## 📈 Future Scope
+## 🚧 Upcoming Features
 
 | Feature                  | Status       |
 |--------------------------|--------------|
@@ -150,9 +149,11 @@ You can add screenshots here showing:
 
 ---
 
-
 ## 💬 Feedback & Contributions
 
-This project is open-source and built for learning. Contributions, issues, forks, and stars are welcome!
+> 🚀 This project is built for learning and experimentation.  
+> PRs, forks, and issues are welcome. Star the repo if you found it helpful!
 
-> Made with ❤️ to blend competitive programming, AI, and real-world dev skills.
+---
+
+**Made with ❤️ to blend competitive programming, AI, and real-world dev skills.**

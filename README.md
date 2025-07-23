@@ -71,26 +71,26 @@ An end-to-end **Online Judge Platform** for solving programming problems, execut
 
 ## 🧱 Project Structure
 
+```
 Execute_Online_Judge/
 ├── backend/
-│ ├── compiler/ → Code execution logic (C++, Python)
-│ ├── database/ → MongoDB connection
-│ ├── middleware/ → JWT auth, role checks
-│ ├── Models/ → User & Problem schemas
-│ ├── aiCodeReview.js → Google Gemini API integration
-│ └── index.js → Express server entry
+│   ├── compiler/         # Code execution logic (C++, Python)
+│   ├── database/         # MongoDB connection setup
+│   ├── middleware/       # JWT auth & role-based access checks
+│   ├── Models/           # Mongoose schemas for User & Problem
+│   ├── aiCodeReview.js   # Gemini API integration
+│   └── index.js          # Express server entry point
 │
 ├── frontend/
-│ ├── src/
-│ │ ├── components/ → Pages, problem views, editor
-│ │ ├── routes/ → Auth & dashboard routes
-│ │ └── App.jsx → App entry point
+│   └── src/
+│       ├── components/   # UI components for problems, editor, admin panel
+│       ├── routes/       # Authenticated & public route configs
+│       └── App.jsx       # Main app entry and layout
 │
-├── Dockerfile → Backend Docker config
-├── .env.example → Environment variables template
-└── README.md
-
-
+├── Dockerfile            # Docker setup for backend
+├── .env.example          # Sample environment variable file
+└── README.md             # You're reading it!
+```
 ---
 
 ## 🧠 How It Works

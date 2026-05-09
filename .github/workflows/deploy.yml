@@ -34,21 +34,20 @@ jobs:
 
       - name: Deploy on EC2
         uses: appleboy/ssh-action@v1.0.0
+        env:
+          MONGODB_URL: ${{ secrets.MONGODB_URL }}
+          MONGO_DB_PROBLEMS: ${{ secrets.MONGO_DB_PROBLEMS }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PORT: ${{ secrets.PORT }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: MONGODB_URL,MONGO_DB_PROBLEMS,JWT_SECRET,GEMINI_API_KEY,PORT,ECR_REPOSITORY
-          env:
-            MONGODB_URL: ${{ secrets.MONGODB_URL }}
-            MONGO_DB_PROBLEMS: ${{ secrets.MONGO_DB_PROBLEMS }}
-            JWT_SECRET: ${{ secrets.JWT_SECRET }}
-            GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-            PORT: ${{ secrets.PORT }}
-            ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          envs: MONGODB_URL,MONGO_DB_PROBLEMS,JWT_SECRET,GEMINI_API_KEY,PORT
           script: |
-            aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin $ECR_REPOSITORY
-            docker pull $ECR_REPOSITORY:latest
+            aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
+            docker pull ${{ secrets.ECR_REPOSITORY }}:latest
             docker stop backend || true
             docker rm backend || true
             docker run -d \
@@ -60,4 +59,4 @@ jobs:
               -e JWT_SECRET="$JWT_SECRET" \
               -e GEMINI_API_KEY="$GEMINI_API_KEY" \
               -e PORT="$PORT" \
-              $ECR_REPOSITORY:latest
+              ${{ secrets.ECR_REPOSITORY }}:latest

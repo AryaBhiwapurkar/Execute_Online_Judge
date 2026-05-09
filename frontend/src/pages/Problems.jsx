@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
 
 const Problems = () => {
   const [problems, setProblems] = useState([]);
@@ -35,7 +34,6 @@ const Problems = () => {
 
   return (
     <div style={styles.wrapper}>
-      <Navbar />
       <div style={styles.page}>
         <div style={styles.container}>
           <h2 style={styles.heading}>📘 Problems List</h2>
@@ -140,7 +138,7 @@ const styles = {
     minWidth: "600px", // Ensure minimum width for small screens
   },
   th: {
-    background: "linear-gradient(135deg, #74b9ff 0%, #0984e3 100%)",
+    background: "linear-gradient(135deg, #74b9ff 0%, #007bff 100%)",
     color: "#fff",
     fontWeight: "600",
     padding: "16px 20px",
@@ -168,7 +166,7 @@ const styles = {
     transform: "scale(1.01)",
   },
   link: {
-    color: "#0984e3",
+    color: "#007bff",
     fontWeight: "500",
     textDecoration: "none",
     transition: "color 0.3s ease",

@@ -18,7 +18,7 @@ const generateFile = (language, code) => {
     case "cpp":
       filename = `${jobId}.cpp`;
       break;
-    
+
     case "py":
       filename = `script_${jobId}.py`; // Avoid clashing
       break;

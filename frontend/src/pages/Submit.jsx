@@ -97,12 +97,15 @@ int main() {
     setAiReview('');
     try {
       const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/ai-review`, {
+        problemId,
+        language,
         code,
       });
       setAiReview(res.data.review || 'No feedback received.');
     } catch (err) {
       console.error(err);
-      setAiReview('❌ Failed to fetch AI review.');
+      const msg = err.response?.data?.error || err.response?.data?.message || err.message;
+      setAiReview(`❌ ${msg || 'Failed to fetch AI review.'}`);
     } finally {
       setIsReviewing(false);
     }

@@ -6,3 +6,6 @@ keys/
 # OS/editor files
 .DS_Store
 .vscode/
+
+# Local AI context doc (intentionally not committed)
+AI_CONTEXT.md

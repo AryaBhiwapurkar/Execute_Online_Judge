@@ -11,7 +11,6 @@ const problemSchema = new mongoose.Schema({
   sampleInput: { type: String, required: true },
   sampleOutput: { type: String, required: true },
 
-  // ✅ Add this field
   testcases: [
     {
       input: { type: String, required: true },
@@ -31,10 +30,10 @@ const problemSchema = new mongoose.Schema({
   }
 });
 
-// ✅ Export a function that takes a DB connection
+// Export a function that takes a DB connection
 module.exports = (connection) => {
   if (connection.models.Problem) {
     return connection.models.Problem;
   }
-  return connection.model("Problem", problemSchema);
+  return connection.model("Problem", problemSchema, "problems");
 };

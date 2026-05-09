@@ -87,7 +87,7 @@ const styles = {
     width: "100vw",
     margin: 0,
     fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-    background: "linear-gradient(135deg, #74ebd5 0%, #9face6 100%)",
+    background: "linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%)",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
@@ -106,10 +106,12 @@ const styles = {
     transition: "transform 0.3s ease",
   },
   heading: {
-    marginBottom: "30px",
+    margin: "0 0 28px",
     color: "#222",
     fontWeight: "700",
-    letterSpacing: "1.2px",
+    letterSpacing: "0.8px",
+    fontSize: "24px",
+    lineHeight: "1.2",
   },
   input: {
     display: "block",

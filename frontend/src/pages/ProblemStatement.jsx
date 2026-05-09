@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
 
 const ProblemStatement = () => {
   const { id } = useParams();
@@ -41,7 +40,6 @@ const ProblemStatement = () => {
 
   return (
     <div style={styles.wrapper}>
-      <Navbar />
       <div style={styles.page}>
         {loading ? (
           <p style={styles.loadingText}>Loading...</p>
@@ -138,7 +136,7 @@ const styles = {
     marginBottom: "10px",
     fontSize: "18px",
     fontWeight: "600",
-    color: "#0984e3",
+    color: "#007bff",
   },
   section: {
     marginBottom: "24px",

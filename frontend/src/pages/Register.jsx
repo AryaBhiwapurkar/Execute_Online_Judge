@@ -57,7 +57,7 @@ const Register = () => {
   return (
     <div style={styles.page}>
       <div style={styles.container} role="main" aria-labelledby="registerHeading">
-        <h2 id="registerHeading">Register</h2>
+        <h2 id="registerHeading" style={styles.heading}>Register</h2>
         <form onSubmit={handleSubmit} noValidate>
           <input
             type="text"
@@ -123,7 +123,7 @@ const styles = {
     width: "100vw",
     margin: 0,
     fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-    background: "linear-gradient(135deg, #74ebd5 0%, #9face6 100%)",
+    background: "linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%)",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
@@ -140,6 +140,14 @@ const styles = {
     width: "100%",
     textAlign: "center",
     transition: "transform 0.3s ease"
+  },
+  heading: {
+    margin: "0 0 28px",
+    color: "#222",
+    fontWeight: "700",
+    letterSpacing: "0.8px",
+    fontSize: "24px",
+    lineHeight: "1.2",
   },
   input: {
     display: "block",

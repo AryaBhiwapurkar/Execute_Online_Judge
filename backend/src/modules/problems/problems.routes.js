@@ -1,21 +1,17 @@
-// 3. Fixed database/problemAPI.js
 const express = require("express");
+const getProblemModel = require("../../models/Problem");
+const { authMiddleware, isAdmin } = require("../../middleware/authMiddleware");
+const { getProblemsConnection } = require("../../db/problemsDb");
+
 const router = express.Router();
-const getProblemModel = require("../Models/Problem");
-const { authMiddleware, isAdmin } = require("../middleware/authMiddleware");
 
 // @route   GET /api/problems
 // @desc    Get all problems (basic list)
 // @access  Public
 router.get("/", async (req, res) => {
   try {
-    if (!global.problemDB) {
-      return res.status(500).json({ message: "Problems database not connected" });
-    }
-
-    const Problem = getProblemModel(global.problemDB);
+    const Problem = getProblemModel(getProblemsConnection());
     const problems = await Problem.find({}, "problemId title difficulty");
-
     res.json(problems);
   } catch (err) {
     console.error("Error fetching problems:", err);
@@ -28,11 +24,7 @@ router.get("/", async (req, res) => {
 // @access  Public
 router.get("/:id", async (req, res) => {
   try {
-    if (!global.problemDB) {
-      return res.status(500).json({ message: "Problems database not connected" });
-    }
-
-    const Problem = getProblemModel(global.problemDB);
+    const Problem = getProblemModel(getProblemsConnection());
     const problem = await Problem.findOne({ problemId: req.params.id });
 
     if (!problem) {
@@ -51,11 +43,7 @@ router.get("/:id", async (req, res) => {
 // @access  Private/Admin
 router.post("/", authMiddleware, isAdmin, async (req, res) => {
   try {
-    if (!global.problemDB) {
-      return res.status(500).json({ message: "Problems database not connected" });
-    }
-
-    const Problem = getProblemModel(global.problemDB);
+    const Problem = getProblemModel(getProblemsConnection());
 
     const {
       problemId,
@@ -67,7 +55,9 @@ router.post("/", authMiddleware, isAdmin, async (req, res) => {
       constraints,
       sampleInput,
       sampleOutput,
-      
+      testcases,
+      timeLimit,
+      memoryLimit,
     } = req.body;
 
     const existing = await Problem.findOne({ problemId });
@@ -85,6 +75,9 @@ router.post("/", authMiddleware, isAdmin, async (req, res) => {
       constraints,
       sampleInput,
       sampleOutput,
+      testcases,
+      timeLimit,
+      memoryLimit,
     });
 
     await problem.save();
@@ -100,11 +93,7 @@ router.post("/", authMiddleware, isAdmin, async (req, res) => {
 // @access  Private/Admin
 router.delete("/:id", authMiddleware, isAdmin, async (req, res) => {
   try {
-    if (!global.problemDB) {
-      return res.status(500).json({ message: "Problems database not connected" });
-    }
-
-    const Problem = getProblemModel(global.problemDB);
+    const Problem = getProblemModel(getProblemsConnection());
     const problem = await Problem.findOneAndDelete({ problemId: req.params.id });
 
     if (!problem) {

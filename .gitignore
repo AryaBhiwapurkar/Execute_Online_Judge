@@ -2,6 +2,8 @@
 keys/
 *.pem
 *.key
+.env
+load-tests/.env
 
 # OS/editor files
 .DS_Store

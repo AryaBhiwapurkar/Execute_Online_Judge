@@ -1,6 +1,6 @@
 const getProblemModel = require("../../models/Problem");
 const { getProblemsConnection } = require("../../db/problemsDb");
-const { runOnce, judgeAgainstTestcases } = require("./judge.service");
+const { addRunJob, addSubmitJob } = require("../../queue/executionQueue");
 
 const runHandler = async (req, res) => {
   const { language = "cpp", code, input = "", problemId } = req.body;
@@ -17,7 +17,7 @@ const runHandler = async (req, res) => {
   }
 
   try {
-    const { output, codePath } = await runOnce({
+    const { output, codePath } = await addRunJob({
       language,
       code,
       input,
@@ -60,7 +60,7 @@ const submitHandler = async (req, res) => {
 
     const { testcases, timeLimit = 1000 } = problem;
 
-    const result = await judgeAgainstTestcases({
+    const result = await addSubmitJob({
       language,
       code,
       testcases,

@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Record start time
+        id: start-time
+        run: echo "start_time=$(date +%s)" >> $GITHUB_OUTPUT
+
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -24,13 +28,30 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Get short commit hash
+        id: commit-hash
+        run: echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
       - name: Build and push Docker image
+        id: docker-build
+        env:
+          ECR_REPO: ${{ secrets.ECR_REPOSITORY }}
+          IMAGE_TAG_LATEST: latest
+          IMAGE_TAG_SHA: ${{ steps.commit-hash.outputs.short_sha }}
+        run: |
+          docker build -t $ECR_REPO:$IMAGE_TAG_LATEST -t $ECR_REPO:$IMAGE_TAG_SHA ./backend
+          docker push $ECR_REPO:$IMAGE_TAG_LATEST
+          docker push $ECR_REPO:$IMAGE_TAG_SHA
+          echo "image_name=$ECR_REPO:$IMAGE_TAG_LATEST" >> $GITHUB_OUTPUT
+
+      - name: Print Docker image size
         env:
           ECR_REPO: ${{ secrets.ECR_REPOSITORY }}
           IMAGE_TAG: latest
         run: |
-          docker build -t $ECR_REPO:$IMAGE_TAG ./backend
-          docker push $ECR_REPO:$IMAGE_TAG
+          SIZE_BYTES=$(docker image inspect $ECR_REPO:$IMAGE_TAG --format='{{.Size}}')
+          SIZE_MB=$(echo "scale=2; $SIZE_BYTES / 1048576" | bc)
+          echo "Image size: ${SIZE_MB}MB"
 
       - name: Deploy on EC2
         uses: appleboy/ssh-action@v1.0.0
@@ -39,15 +60,27 @@ jobs:
           MONGO_DB_PROBLEMS: ${{ secrets.MONGO_DB_PROBLEMS }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          REDIS_URL: redis://localhost:6379
           PORT: ${{ secrets.PORT }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ steps.commit-hash.outputs.short_sha }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: MONGODB_URL,MONGO_DB_PROBLEMS,JWT_SECRET,GEMINI_API_KEY,PORT
+          envs: MONGODB_URL,MONGO_DB_PROBLEMS,JWT_SECRET,GEMINI_API_KEY,REDIS_URL,PORT,ECR_REPOSITORY,IMAGE_TAG
           script: |
             aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
-            docker pull ${{ secrets.ECR_REPOSITORY }}:latest
+            
+            # Start Redis
+            docker run -d \
+              --name redis \
+              --restart always \
+              -p 6379:6379 \
+              redis:alpine || true
+            
+            # Pull and deploy backend
+            docker pull $ECR_REPOSITORY:$IMAGE_TAG
             docker stop backend || true
             docker rm backend || true
             docker run -d \
@@ -58,5 +91,28 @@ jobs:
               -e MONGO_DB_PROBLEMS="$MONGO_DB_PROBLEMS" \
               -e JWT_SECRET="$JWT_SECRET" \
               -e GEMINI_API_KEY="$GEMINI_API_KEY" \
+              -e REDIS_URL="$REDIS_URL" \
               -e PORT="$PORT" \
-              ${{ secrets.ECR_REPOSITORY }}:latest
+              $ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Health check
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          sleep 15
+          HEALTH_CHECK=$(curl -s -o /dev/null -w "%{http_code}" http://$EC2_HOST:5000/)
+          if [ "$HEALTH_CHECK" = "200" ]; then
+            echo "✅ Deploy successful, service is healthy"
+            exit 0
+          else
+            echo "❌ Deploy failed health check (HTTP $HEALTH_CHECK)"
+            exit 1
+          fi
+
+      - name: Print total pipeline time
+        if: always()
+        run: |
+          END_TIME=$(date +%s)
+          START_TIME=${{ steps.start-time.outputs.start_time }}
+          DURATION=$((END_TIME - START_TIME))
+          echo "Total pipeline time: ${DURATION}s"
